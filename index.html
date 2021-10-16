@@ -22,10 +22,23 @@
         align-items: center;
         justify-content: center;
       }
+      #container {
+        width: 100%;
+        padding: 10px 10px;
+        justify-content: center;
+        max-width: 1200px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .tile {
+        padding: 25px;
+      }
       canvas {
         box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
       }
     </style>
   </head>
-  <body></body>
+  <body>
+    <div id="container"></div>
+  </body>
 </html>

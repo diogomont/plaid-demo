@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
+    <script src="https://unpkg.com/p5.js-svg@1.1.1"></script>
     <script type="text/javascript" src="sketch.js"></script>
 
     <style>
@@ -21,14 +22,38 @@
         display: grid;
         align-items: center;
         justify-content: center;
-      }
-      #container {
         width: 100%;
+        font-family: monospace;
+        font-weight: bold;
+        font-size: 18px;
+        min-width: 480px;
+      }
+      .main {
+        display: flex;
+        flex-direction: column;
+        max-width: 1600px;
         padding: 10px 10px;
         justify-content: center;
-        max-width: 1200px;
+        align-items: center;
+      }
+      .inputs {
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+      }
+      textarea {
+        width: 390px;
+        font-family: monospace;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      span {
+        margin-bottom: 8px;
+      }
+      #container {
         display: flex;
         flex-wrap: wrap;
+        justify-content: center;
       }
       .tile {
         padding: 25px;
@@ -36,9 +61,24 @@
       canvas {
         box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
       }
+      button {
+        padding: 20px 10px;
+      }
     </style>
   </head>
   <body>
-    <div id="container"></div>
+    <div class="main">
+      <div class="inputs">
+        <span>Colors:</span>
+        <textarea type="text" id="colors" rows="2">
+#fff, #1b1b1b, #051df5, #f51b05, #006738, #f6be00</textarea
+        >
+        <br />
+        <button onclick="generate()">Generate new tiles</button>
+        <br />
+        <br />
+      </div>
+      <div id="container" />
+    </div>
   </body>
 </html>

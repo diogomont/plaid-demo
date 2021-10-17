@@ -1,4 +1,4 @@
-const COLORS = ["#fff", "#1b1b1b", "#051df5", "#f51b05", "#006738", "#f6be00"];
+// const COLORS = ["#fff", "#1b1b1b", "#051df5", "#f51b05", "#006738", "#f6be00"];
 // const BACKGROUND_COLORS = ["#d4c7b4", "#fff", "#f4f2ee", "#d5b089", "#d6d6d6"];
 // const PRIMARY_COLORS = ["#feab02", "#ec3833", "#1c751c", "#292a46"];
 
@@ -7,7 +7,11 @@ const CANVAS_WIDTH = 450;
 const CANVAS_HEIGHT = 450;
 const SCALE = CANVAS_WIDTH / PIXEL_COUNT;
 
-const s = function(p) {
+const NUM_PATTERNS = 3;
+// 40% chance of pattern 0, 40% chance of pattern 1, 20% chance of pattern 2
+const PATTERN_WEIGHTING = [0.4, 0.8, 1];
+
+const s = function (p) {
   p.setup = () => {
     p.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   };
@@ -17,13 +21,16 @@ const s = function(p) {
 
     const seed = Math.random();
 
-    const colorSet = [Math.floor(seed * 1000000) % COLORS.length];
+    const inputText = document.getElementById("colors").value;
+    const inputColors = inputText.split(",");
+
+    const colorSet = [Math.floor(seed * 1000000) % inputColors.length];
 
     let seedMod = 1;
     while (colorSet.length < 3) {
       seedMod++;
       const randomIndex =
-        Math.floor(seed * ((829328 * seedMod) % 3294)) % COLORS.length;
+        Math.floor(seed * ((829328 * seedMod) % 3294)) % inputColors.length;
       if (!colorSet.includes(randomIndex)) {
         colorSet.push(randomIndex);
       }
@@ -32,14 +39,21 @@ const s = function(p) {
     // const backgroundColor = BACKGROUND_COLORS[Math.floor(seed * 1000000) % BACKGROUND_COLORS.length];
     // const primaryColor = PRIMARY_COLORS[Math.floor(seed * 1000000) % PRIMARY_COLORS.length];
     // const secondaryColor = PRIMARY_COLORS[Math.floor((seed << 5) * 1234567) % PRIMARY_COLORS.length];
-    const backgroundColor = COLORS[colorSet[0]];
-    const primaryColor = COLORS[colorSet[1]];
-    const secondaryColor = COLORS[colorSet[2]];
+    const backgroundColor = inputColors[colorSet[0]];
+    const primaryColor = inputColors[colorSet[1]];
+    const secondaryColor = inputColors[colorSet[2]];
 
     p.scale(SCALE);
     p.background(backgroundColor);
 
-    const pattern = Math.floor(seed * 1000000) % 2;
+    let pattern;
+    if (seed < PATTERN_WEIGHTING[0]) {
+      pattern = 0;
+    } else if (seed < PATTERN_WEIGHTING[1]) {
+      pattern = 1;
+    } else {
+      pattern = 2;
+    }
 
     if (pattern === 0) {
       const START_X = 7;
@@ -64,7 +78,7 @@ const s = function(p) {
         primaryColor,
         WIDTH + GAP - WIDTH_SMALL - 1,
         WIDTH_SMALL,
-        WIDTH + GAP - WIDTH_SMALL,
+        WIDTH + GAP - WIDTH_SMALL
       );
       // draw skinny columns
       drawColumns(p, secondaryColor, 2, WIDTH_SMALL, 34, true);
@@ -76,6 +90,10 @@ const s = function(p) {
       drawColumns(p, primaryColor, 2 + 10, WIDTH_MEDIUM, 32, true);
       // draw medium columns (right)
       drawColumns(p, primaryColor, 2 + 10 + 14, WIDTH_MEDIUM, 32, true);
+    } else if (pattern === 2) {
+      for (let i = 0; i < PIXEL_COUNT / 8 + 1; i++) {
+        drawHoundstoothColumn(p, primaryColor, i * 8 - 4);
+      }
     }
   };
 };
@@ -139,13 +157,52 @@ function checkeredLine(p, color, start, rowWidth, isRow, invert) {
   }
 }
 
-const numTiles = 20;
+function drawHoundstoothColumn(p, primaryColor, startX) {
+  p.stroke(primaryColor);
+  p.fill(primaryColor);
+
+  for (let i = 0; i < PIXEL_COUNT / 8; i++) {
+    const startY = i * 8 - 2;
+    // top wing
+    p.point(startX, startY);
+    p.point(startX, startY + 1);
+    p.point(startX - 1, startY + 1);
+    p.point(startX - 1, startY + 2);
+    p.point(startX - 2, startY + 2);
+    p.point(startX - 2, startY + 3);
+    p.point(startX - 3, startY + 3);
+
+    // body
+    p.rect(startX - 3, startY + 4, 3, 3);
+
+    // bottom left wing
+    p.point(startX - 3, startY + 8);
+    p.point(startX - 4, startY + 7);
+    p.point(startX - 4, startY + 6);
+    p.point(startX - 5, startY + 7);
+
+    // right wing
+    p.point(startX + 1, startY + 5);
+    p.point(startX + 2, startY + 5);
+    p.point(startX + 2, startY + 4);
+    p.point(startX + 3, startY + 4);
+    p.point(startX + 1, startY + 6);
+  }
+}
+
+const numTiles = 30;
+const instances = [];
 window.onload = () => {
   for (let i = 0; i < numTiles; i++) {
     const div = document.createElement("div");
     div.setAttribute("id", `c${i + 1}`);
     div.setAttribute("class", "tile");
     document.getElementById("container").appendChild(div);
-    new p5(s, `c${i + 1}`);
+    instances.push(new p5(s, `c${i + 1}`));
   }
+  window.scrollTo(0, 0);
+};
+
+const generate = () => {
+  instances.forEach((inst) => inst.redraw());
 };

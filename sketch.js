@@ -62,10 +62,9 @@ const s = function(p) {
       drawRows(
         p,
         primaryColor,
-        WIDTH + GAP - WIDTH_SMALL - 2,
+        WIDTH + GAP - WIDTH_SMALL - 1,
         WIDTH_SMALL,
         WIDTH + GAP - WIDTH_SMALL,
-        true
       );
       // draw skinny columns
       drawColumns(p, secondaryColor, 2, WIDTH_SMALL, 34, true);

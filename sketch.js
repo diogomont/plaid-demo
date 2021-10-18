@@ -8,8 +8,7 @@ const CANVAS_HEIGHT = 450;
 const SCALE = CANVAS_WIDTH / PIXEL_COUNT;
 
 const NUM_PATTERNS = 3;
-// 40% chance of pattern 0, 40% chance of pattern 1, 20% chance of pattern 2
-const PATTERN_WEIGHTING = [0.4, 0.8, 1];
+const PATTERN_WEIGHTING = [0.15, 0.3, 0.5, 0.7, 0.9, 1];
 
 const s = function (p) {
   p.setup = () => {
@@ -27,7 +26,7 @@ const s = function (p) {
     const colorSet = [Math.floor(seed * 1000000) % inputColors.length];
 
     let seedMod = 1;
-    while (colorSet.length < 3) {
+    while (colorSet.length < 4) {
       seedMod++;
       const randomIndex =
         Math.floor(seed * ((829328 * seedMod) % 3294)) % inputColors.length;
@@ -42,18 +41,20 @@ const s = function (p) {
     const backgroundColor = inputColors[colorSet[0]];
     const primaryColor = inputColors[colorSet[1]];
     const secondaryColor = inputColors[colorSet[2]];
+    const tertiaryColor = inputColors[colorSet[3]];
 
     p.scale(SCALE);
     p.background(backgroundColor);
 
     let pattern;
-    if (seed < PATTERN_WEIGHTING[0]) {
-      pattern = 0;
-    } else if (seed < PATTERN_WEIGHTING[1]) {
-      pattern = 1;
-    } else {
-      pattern = 2;
-    }
+    PATTERN_WEIGHTING.some((weight, i) => {
+      console.log({ seed, weight, i });
+      console.log(seed < weight);
+      if (seed < weight) {
+        pattern = i;
+        return true;
+      }
+    });
 
     if (pattern === 0) {
       const START_X = 7;
@@ -64,6 +65,28 @@ const s = function (p) {
       drawRows(p, primaryColor, START_Y, WIDTH, GAP);
       drawColumns(p, primaryColor, START_X, WIDTH, GAP);
     } else if (pattern === 1) {
+      const START_X = 1;
+      const START_Y = 1;
+      const WIDTH = 8;
+      const GAP = 6;
+
+      drawRows(p, primaryColor, START_Y, WIDTH, GAP);
+      drawColumns(p, primaryColor, START_X, WIDTH, GAP);
+    } else if (pattern === 2) {
+      const START_X = 1;
+      const START_Y = 1;
+      const WIDTH = 2;
+      const GAP = 14;
+
+      // primary rows
+      drawRows(p, primaryColor, START_Y, WIDTH, GAP);
+      // secondary rows
+      drawRows(p, secondaryColor, START_Y + 8, WIDTH, GAP);
+      // primary columns
+      drawColumns(p, primaryColor, START_X, WIDTH, GAP);
+      // secondary columns
+      drawColumns(p, secondaryColor, START_X + 8, WIDTH, GAP);
+    } else if (pattern === 3) {
       const START_Y = 5;
       const WIDTH = 16;
       const GAP = 14;
@@ -80,6 +103,7 @@ const s = function (p) {
         WIDTH_SMALL,
         WIDTH + GAP - WIDTH_SMALL
       );
+
       // draw skinny columns
       drawColumns(p, secondaryColor, 2, WIDTH_SMALL, 34, true);
       // draw skinny columns inner (left)
@@ -90,11 +114,36 @@ const s = function (p) {
       drawColumns(p, primaryColor, 2 + 10, WIDTH_MEDIUM, 32, true);
       // draw medium columns (right)
       drawColumns(p, primaryColor, 2 + 10 + 14, WIDTH_MEDIUM, 32, true);
-    } else if (pattern === 2) {
+    } else if (pattern === 4) {
+      const WIDTH_SMALL = 2;
+      const WIDTH_MEDIUM = 4;
+      const WIDTH = 16;
+      const WIDTH_LARGE = 18;
+
+      // draw skinny rows
+      drawRows(p, primaryColor, 2, WIDTH_SMALL, 72 - WIDTH_SMALL);
+      // draw fat rows (top)
+      drawRows(p, primaryColor, 20, WIDTH_LARGE, 72 - WIDTH_LARGE);
+      // draw fat rows (bottom)
+      drawRows(p, primaryColor, 40, WIDTH_LARGE, 72 - WIDTH_LARGE);
+
+      // draw fat columns
+      drawColumns(p, secondaryColor, 19, WIDTH, 48 - WIDTH, true);
+      // draw medium columns (left)
+      drawColumns(p, tertiaryColor, 43, WIDTH_MEDIUM, 48 - WIDTH_MEDIUM, true);
+      // draw medium columns (middle)
+      drawColumns(p, secondaryColor, 1, WIDTH_MEDIUM, 48 - WIDTH_MEDIUM, true);
+      // draw medium columns (right)
+      drawColumns(p, tertiaryColor, 7, WIDTH_MEDIUM, 48 - WIDTH_MEDIUM, true);
+    } else if (pattern === 5) {
       for (let i = 0; i < PIXEL_COUNT / 8 + 1; i++) {
         drawHoundstoothColumn(p, primaryColor, i * 8 - 4);
       }
     }
+    p.textSize(10);
+    p.fill(0);
+    p.stroke("#fff");
+    p.text(`#${pattern + 1}`, 137, 148);
   };
 };
 
